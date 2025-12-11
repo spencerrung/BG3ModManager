@@ -4,7 +4,7 @@ using DivinityModManager.Models;
 using DivinityModManager.ViewModels;
 
 using System.Diagnostics;
-using System.Windows;
+using DivinityModManager.Enums;
 
 namespace DivinityModManager.Util;
 

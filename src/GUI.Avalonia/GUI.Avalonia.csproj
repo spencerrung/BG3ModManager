@@ -1,0 +1,117 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<RootNamespace>DivinityModManager</RootNamespace>
+
+		<StartupObject>DivinityModManager.Program</StartupObject>
+		<ApplicationIcon>BG3ModManager.ico</ApplicationIcon>
+
+		<AssemblyName>BG3ModManager</AssemblyName>
+		<AssemblyTitle>BG3ModManager</AssemblyTitle>
+
+		<AssemblyVersion>1.0.12.9</AssemblyVersion>
+		<FileVersion>1.0.12.9</FileVersion>
+
+		<Product>Baldur's Gate 3 Mod Manager</Product>
+		<Company>LaughingLeader</Company>
+		<Copyright>Copyright © 2020</Copyright>
+		<Description>A mod manager for Baldur's Gate 3.</Description>
+
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<OutputPath>$(SolutionDir)bin/$(Configuration)/</OutputPath>
+
+		<GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+
+		<Platforms>AnyCPU;x64</Platforms>
+		<PlatformTarget>x64</PlatformTarget>
+		<Configurations>Debug;Release;Publish;PublishTest</Configurations>
+
+		<ApplicationManifest>app.manifest</ApplicationManifest>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<Optimize>False</Optimize>
+		<DebugType>full</DebugType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="$(SolutionDir)src/Core/DivinityModManagerCore.csproj" />
+	</ItemGroup>
+
+	<!-- Avalonia and Core UI Framework -->
+	<ItemGroup>
+		<PackageReference Include="Avalonia" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Desktop" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Controls.DataGrid" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.0" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.0" />
+	</ItemGroup>
+
+	<!-- Reactive Programming -->
+	<ItemGroup>
+		<PackageReference Include="ReactiveUI" Version="19.4.1" />
+		<PackageReference Include="ReactiveUI.Avalonia" Version="14.7.1" />
+		<PackageReference Include="ReactiveUI.Fody" Version="19.4.1" />
+		<PackageReference Include="System.Reactive" Version="6.0.1" />
+		<PackageReference Include="DynamicData" Version="9.0.1" />
+		<PackageReference Include="Splat" Version="14.8.6" />
+		<PackageReference Include="Splat.Drawing" Version="14.8.6" />
+	</ItemGroup>
+
+	<!-- File Handling & Compression -->
+	<ItemGroup>
+		<PackageReference Include="SharpCompress" Version="0.39.0" />
+		<PackageReference Include="ZstdSharp.Port" Version="0.8.5" />
+	</ItemGroup>
+
+	<!-- Serialization & Data -->
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
+
+	<!-- External Services -->
+	<ItemGroup>
+		<PackageReference Include="NexusModsNET" Version="1.0.5" />
+	</ItemGroup>
+
+	<!-- Build & Code Generation -->
+	<ItemGroup>
+		<PackageReference Include="Fody" Version="6.9.2" PrivateAssets="all" />
+	</ItemGroup>
+
+	<!-- Resources -->
+	<ItemGroup>
+		<None Include="Resources/*.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<Resource Include="Resources/Icons/*.png">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Resource>
+		<AvaloniaResource Include="Themes/**/*.axaml" />
+		<Resource Include="FodyWeavers.xml" />
+		<Resource Include="Resources/BG3MMSplashScreen.png" />
+		<AvaloniaResource Include="App.xaml" />
+	</ItemGroup>
+
+	<!-- Build targets for publish configuration -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Publish' or '$(Configuration)' == 'PublishTest'">
+		<PreBuildEvent>rm -rf "$(TargetDir)_Lib" 2>/dev/null || rmdir /s /q "$(TargetDir)_Lib" 2>nul</PreBuildEvent>
+	</PropertyGroup>
+
+	<Target Name="SetupLibFolder" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Publish' or '$(Configuration)' == 'PublishTest'">
+		<ItemGroup>
+			<DeleteDebug Include="$(OutputPath)*.pdb" />
+			<MoveToLibFolder Include="$(OutputPath)*.dll;$(OutputPath)*.xml" Exclude="$(OutputPath)BG3ModManager.dll;$(OutputPath)WinRT.Runtime.dll" />
+		</ItemGroup>
+		<Move SourceFiles="@(MoveToLibFolder)" DestinationFolder="$(OutputPath)_Lib" OverwriteReadOnlyFiles="true" ContinueOnError="true" />
+		<Delete Files="@(DeleteDebug)" ContinueOnError="true" TreatErrorsAsWarnings="true">
+			<Output TaskParameter="DeletedFiles" ItemName="DeletedList" />
+		</Delete>
+		<RemoveDir Directories="$(OutputPath)de;$(OutputPath)en;$(OutputPath)es;$(OutputPath)fr;$(OutputPath)it;$(OutputPath)ja;$(OutputPath)ko;$(OutputPath)ru;$(OutputPath)zh-Hans;$(OutputPath)zh-Hant;$(OutputPath)cs-CZ;$(OutputPath)hu;$(OutputPath)ja-JP;$(OutputPath)pt-BR;$(OutputPath)ro;$(OutputPath)sv;$(OutputPath)ar;$(OutputPath)cs;$(OutputPath)da;$(OutputPath)lv;$(OutputPath)nl;$(OutputPath)pl;$(OutputPath)pt;$(OutputPath)sk;$(OutputPath)th;$(OutputPath)tr;$(OutputPath)zh;$(OutputPath)zh-TW;$(OutputPath)runtimes;$(OutputPath)_Logs;$(OutputPath)Data" ContinueOnError="true" />
+	</Target>
+
+</Project>

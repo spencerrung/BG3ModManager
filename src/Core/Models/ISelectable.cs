@@ -1,10 +1,10 @@
-﻿using System.Windows;
+﻿using DivinityModManager.Enums;
 
 namespace DivinityModManager.Models;
 
 public interface ISelectable
 {
 	bool IsSelected { get; set; }
-	Visibility Visibility { get; set; }
+	UIVisibility Visibility { get; set; }
 	bool CanDrag { get; }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using System.Windows;
+using DivinityModManager.Enums;
 
 namespace DivinityModManager.Models;
 
@@ -66,13 +66,13 @@ public class DivinityBaseModData : ReactiveObject, IDivinityModData
 
 	public List<string> Tags { get; set; } = new List<string>();
 
-	[Reactive] public Visibility Visibility { get; set; }
+	[Reactive] public UIVisibility Visibility { get; set; }
 
-	readonly ObservableAsPropertyHelper<Visibility> descriptionVisibility;
-	public Visibility DescriptionVisibility => descriptionVisibility.Value;
+	readonly ObservableAsPropertyHelper<UIVisibility> descriptionVisibility;
+	public UIVisibility DescriptionVisibility => descriptionUIVisibility.Value;
 
-	readonly ObservableAsPropertyHelper<Visibility> authorVisibility;
-	public Visibility AuthorVisibility => authorVisibility.Value;
+	readonly ObservableAsPropertyHelper<UIVisibility> authorVisibility;
+	public UIVisibility AuthorVisibility => authorUIVisibility.Value;
 
 	public virtual string GetDisplayName()
 	{
@@ -158,7 +158,7 @@ public class DivinityBaseModData : ReactiveObject, IDivinityModData
 		FileSize = 0ul;
 
 		HelpText = "";
-		Visibility = Visibility.Visible;
+		Visibility = UIVisibility.Visible;
 
 		fileName = this.WhenAnyValue(x => x.FilePath)
 			.Select(Path.GetFileName)
@@ -169,11 +169,11 @@ public class DivinityBaseModData : ReactiveObject, IDivinityModData
 			.ToProperty(this, nameof(DisplayName));
 
 		descriptionVisibility = this.WhenAnyValue(x => x.Description)
-			.Select(x => !String.IsNullOrWhiteSpace(x) ? Visibility.Visible : Visibility.Collapsed)
-			.ToProperty(this, nameof(DescriptionVisibility), Visibility.Visible);
+			.Select(x => !String.IsNullOrWhiteSpace(x) ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToProperty(this, nameof(DescriptionVisibility), UIVisibility.Visible);
 
 		authorVisibility = this.WhenAnyValue(x => x.Author)
-			.Select(x => !String.IsNullOrWhiteSpace(x) ? Visibility.Visible : Visibility.Collapsed)
-			.ToProperty(this, nameof(AuthorVisibility), Visibility.Visible);
+			.Select(x => !String.IsNullOrWhiteSpace(x) ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToProperty(this, nameof(AuthorVisibility), UIVisibility.Visible);
 	}
 }
