@@ -1,5 +1,6 @@
 using System;
 using DivinityModManager.Platform;
+using DivinityModManager.Services.Parsers;
 using Splat;
 
 namespace DivinityModManager;
@@ -24,35 +25,46 @@ public static class PlatformServiceInitializer
 			var platformServices = PlatformServicesFactory.CreatePlatformServices();
 
 			// Register the aggregator service
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices,
 				typeof(IPlatformServices)
 			);
 
 			// Optionally register individual services for direct injection
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices.FileDialogs,
 				typeof(IFileDialogService)
 			);
 
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices.Registry,
 				typeof(IRegistryService)
 			);
 
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices.FileSystem,
 				typeof(IFileSystemService)
 			);
 
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices.Process,
 				typeof(IProcessService)
 			);
 
-			Locator.Current.Register(
+			Locator.CurrentMutable.Register(
 				() => platformServices.Accessibility,
 				typeof(IAccessibilityService)
+			);
+
+			// Register parsers for cross-platform mod loading
+			Locator.CurrentMutable.RegisterLazySingleton(
+				() => new LsxParser(),
+				typeof(ILsxParser)
+			);
+
+			Locator.CurrentMutable.RegisterLazySingleton(
+				() => new PakReader(),
+				typeof(IPakReader)
 			);
 
 			DivinityApp.Log("Platform services registered successfully");

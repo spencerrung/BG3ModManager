@@ -1,8 +1,15 @@
-﻿namespace DivinityModManager;
+﻿using DivinityModManager.Services.Parsers;
 
-public static class Services
+namespace DivinityModManager;
+
+public static class ServiceLocator
 {
+#if !LINUX_BUILD
 	public static IScreenReaderService ScreenReader => Get<IScreenReaderService>();
+#endif
+
+	public static ILsxParser LsxParser => Get<ILsxParser>();
+	public static IPakReader PakReader => Get<IPakReader>();
 
 	public static T Get<T>(string contract = null)
 	{

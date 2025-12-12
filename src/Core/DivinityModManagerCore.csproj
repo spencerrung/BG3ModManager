@@ -15,13 +15,69 @@
 		<DebugType>full</DebugType>
 		<Optimize>False</Optimize>
 	</PropertyGroup>
-	<ItemGroup>
+	<PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+		<DefineConstants>$(DefineConstants);LINUX_BUILD</DefineConstants>
+	</PropertyGroup>
+	<ItemGroup Condition="'$(OS)' == 'Windows_NT'">
 		<ProjectReference Include="$(SolutionDir)External\lslib\LSLibNative\LSLibNative.vcxproj" />
 		<ProjectReference Include="$(SolutionDir)External\lslib\LSLib\LSLib.csproj" />
 		<ProjectReference Include="$(SolutionDir)External\CrossSpeak\CrossSpeak\CrossSpeak.csproj" />
 	</ItemGroup>
+	<!-- Exclude LSLib-dependent files on non-Windows platforms -->
+	<ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+		<Compile Remove="Util/DivinityModDataLoader.cs" />
+		<Compile Remove="Util/DivinitySaveTools.cs" />
+		<Compile Remove="Util/DivinityFileUtils.cs" />
+		<Compile Remove="Util/DivinityGlobalCommands.cs" />
+		<Compile Remove="Models/DivinityModData.cs" />
+		<Compile Remove="Models/DivinityBaseModData.cs" />
+		<Compile Remove="Models/DivinityProfileData.cs" />
+		<Compile Remove="Models/DivinityProfileActiveModData.cs" />
+		<Compile Remove="Models/DivinityGameMasterCampaign.cs" />
+		<Compile Remove="Extensions/ResourceExtensions.cs" />
+		<Compile Remove="Models/DivinityLoadOrder.cs" />
+		<Compile Remove="Models/App/ModSettingsParseResults.cs" />
+		<Compile Remove="Models/App/MissingModResults.cs" />
+		<Compile Remove="Models/Conflicts/DivinityConflictGroup.cs" />
+		<Compile Remove="Models/Conflicts/DivinityConflictEntryData.cs" />
+		<Compile Remove="Models/DivinityMissingModData.cs" />
+		<Compile Remove="Models/ModFileDeletionData.cs" />
+		<Compile Remove="Models/ModuleShortDesc.cs" />
+		<Compile Remove="Models/DivinitySerializedModData.cs" />
+		<Compile Remove="Models/NexusMods/NexusModsModDownloadLink.cs" />
+		<Compile Remove="Models/Updates/DivinityModUpdateData.cs" />
+		<Compile Remove="Models/Updates/UpdateResult.cs" />
+		<Compile Remove="Models/Steam/QueryFilesResponseData.cs" />
+		<Compile Remove="AppServices/ScreenReaderService.cs" />
+		<Compile Remove="Platform/Windows/WindowsAccessibilityService.cs" />
+		<Compile Remove="Platform/Windows/WindowsFileSystemService.cs" />
+		<Compile Remove="Services/IModLoadingService.cs" />
+		<Compile Remove="Services/Windows/WindowsModLoadingService.cs" />
+		<Compile Remove="Services/Linux/LinuxModLoadingService.cs" />
+		<Compile Remove="Services/ModLoadingServiceFactory.cs" />
+		<Compile Remove="ModUpdater/ModUpdateHandler.cs" />
+		<Compile Remove="Util/DivinityJsonUtils.cs" />
+		<Compile Remove="Util/NexusModsDataLoader.cs" />
+		<Compile Remove="Models/App/Hotkey.cs" />
+		<Compile Remove="Models/App/MultiReactiveCommandHotkey.cs" />
+		<Compile Remove="ViewModels/IDivinityAppViewModel.cs" />
+		<Compile Remove="AppServices/ModRegistryService.cs" />
+		<Compile Remove="Models/App/ImportOperationResults.cs" />
+		<Compile Remove="Models/App/ModLoadingResults.cs" />
+		<Compile Remove="Models/DivinityModFilterData.cs" />
+		<Compile Remove="ModUpdater/Cache/GithubModsCacheHandler.cs" />
+		<Compile Remove="ModUpdater/Cache/IExternalModCacheHandler.cs" />
+		<Compile Remove="ModUpdater/Cache/NexusModsCacheHandler.cs" />
+		<Compile Remove="ModUpdater/Cache/SteamWorkshopCacheHandler.cs" />
+		<Compile Remove="Util/DivinityModSorter.cs" />
+		<Compile Remove="Models/DivinityBaseModData.cs" />
+		<Compile Remove="Util/GithubHelper.cs" />
+		<Compile Remove="Util/DivinityRegistryHelper.cs" />
+		<Compile Remove="Platform/Windows/WindowsPlatformServices.cs" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
+		<PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
 		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="NexusModsNET" Version="1.0.5" />
