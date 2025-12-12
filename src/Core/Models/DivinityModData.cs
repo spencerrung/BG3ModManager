@@ -9,7 +9,7 @@ using DynamicData.Aggregation;
 using DynamicData.Binding;
 
 using System.Globalization;
-using System.Windows;
+using DivinityModManager.Enums;
 
 namespace DivinityModManager.Models;
 
@@ -168,9 +168,9 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 	[ObservableAsProperty] public bool HasInvalidUUID { get; }
 	[ObservableAsProperty] public bool IsMissingDependency { get; }
 	[ObservableAsProperty] public string MissingDependencyToolTip { get; }
-	[ObservableAsProperty] public Visibility HasInvalidUUIDVisibility { get; }
-	[ObservableAsProperty] public Visibility MissingDependencyIconVisibility { get; }
-	[ObservableAsProperty] public Visibility ToolkitIconVisibility { get; }
+	[ObservableAsProperty] public UIVisibility HasInvalidUUIDVisibility { get; }
+	[ObservableAsProperty] public UIVisibility MissingDependencyIconVisibility { get; }
+	[ObservableAsProperty] public UIVisibility ToolkitIconVisibility { get; }
 	[ObservableAsProperty] public ScriptExtenderIconType ExtenderIcon { get; }
 
 	[Reactive] public bool HasScriptExtenderSettings { get; set; }
@@ -187,7 +187,7 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 		get => isSelected;
 		set
 		{
-			if (value && Visibility != Visibility.Visible)
+			if (value && Visibility != UIVisibility.Visible)
 			{
 				value = false;
 			}
@@ -203,21 +203,21 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 	[ObservableAsProperty] public string LastModifiedDateText { get; }
 	[ObservableAsProperty] public string DisplayVersion { get; }
 
-	[ObservableAsProperty] public Visibility DependencyVisibility { get; }
-	[ObservableAsProperty] public Visibility ConflictsVisibility { get; }
+	[ObservableAsProperty] public UIVisibility DependencyVisibility { get; }
+	[ObservableAsProperty] public UIVisibility ConflictsVisibility { get; }
 
-	[ObservableAsProperty] public Visibility OpenWorkshopLinkVisibility { get; }
-	[ObservableAsProperty] public Visibility OpenNexusModsLinkVisibility { get; }
-	[ObservableAsProperty] public Visibility ToggleForceAllowInLoadOrderVisibility { get; }
-	[ObservableAsProperty] public Visibility ExtenderStatusVisibility { get; }
-	[ObservableAsProperty] public Visibility OsirisStatusVisibility { get; }
-	[ObservableAsProperty] public Visibility HasFilePathVisibility { get; }
+	[ObservableAsProperty] public UIVisibility OpenWorkshopLinkVisibility { get; }
+	[ObservableAsProperty] public UIVisibility OpenNexusModsLinkVisibility { get; }
+	[ObservableAsProperty] public UIVisibility ToggleForceAllowInLoadOrderVisibility { get; }
+	[ObservableAsProperty] public UIVisibility ExtenderStatusVisibility { get; }
+	[ObservableAsProperty] public UIVisibility OsirisStatusVisibility { get; }
+	[ObservableAsProperty] public UIVisibility HasFilePathVisibility { get; }
 
 	#region NexusMods Properties
 
 	[ObservableAsProperty] public bool CanOpenNexusModsLink { get; }
-	[ObservableAsProperty] public Visibility NexusImageVisibility { get; }
-	[ObservableAsProperty] public Visibility NexusModsInformationVisibility { get; }
+	[ObservableAsProperty] public UIVisibility NexusImageVisibility { get; }
+	[ObservableAsProperty] public UIVisibility NexusModsInformationVisibility { get; }
 	[ObservableAsProperty] public DateTime NexusModsCreatedDate { get; }
 	[ObservableAsProperty] public DateTime NexusModsUpdatedDate { get; }
 	[ObservableAsProperty] public string NexusModsTooltipInfo { get; }
@@ -395,12 +395,12 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 		this.WhenAnyValue(x => x.UUID).BindTo(NexusModsData, x => x.UUID);
 
 		this.WhenAnyValue(x => x.NexusModsData.PictureUrl)
-			.Select(uri => uri != null && !String.IsNullOrEmpty(uri.AbsolutePath) ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.NexusImageVisibility, Visibility.Collapsed);
+			.Select(uri => uri != null && !String.IsNullOrEmpty(uri.AbsolutePath) ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.NexusImageVisibility, UIVisibility.Collapsed);
 
 		this.WhenAnyValue(x => x.NexusModsData.IsUpdated)
-			.Select(b => b ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.NexusModsInformationVisibility, Visibility.Collapsed);
+			.Select(b => b ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.NexusModsInformationVisibility, UIVisibility.Collapsed);
 
 		this.WhenAnyValue(x => x.NexusModsData.CreatedTimestamp)
 			.SkipWhile(x => x <= 0)
@@ -417,15 +417,15 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 			.ToUIProperty(this, x => x.NexusModsTooltipInfo);
 
 		this.WhenAnyValue(x => x.IsForceLoaded, x => x.HasMetadata, x => x.IsForceLoadedMergedMod)
-			.Select(b => b.Item1 && b.Item2 && !b.Item3 ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.ToggleForceAllowInLoadOrderVisibility, Visibility.Collapsed);
+			.Select(b => b.Item1 && b.Item2 && !b.Item3 ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.ToggleForceAllowInLoadOrderVisibility, UIVisibility.Collapsed);
 
 		this.WhenAnyValue(x => x.NexusModsEnabled, x => x.NexusModsData.ModId, (b, id) => b && id >= DivinityApp.NEXUSMODS_MOD_ID_START)
 			.ToUIProperty(this, x => x.CanOpenNexusModsLink);
 
 		this.WhenAnyValue(x => x.CanOpenNexusModsLink)
-			.Select(b => b ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.OpenNexusModsLinkVisibility, Visibility.Collapsed);
+			.Select(b => b ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.OpenNexusModsLinkVisibility, UIVisibility.Collapsed);
 
 		var depConn = Dependencies.Connect().ObserveOn(RxApp.MainThreadScheduler);
 		depConn.SortAndBind(out displayedDependencies, _moduleSort).DisposeMany().Subscribe();
@@ -433,7 +433,7 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 		this.WhenAnyValue(x => x.TotalDependencies, c => c > 0).ToUIPropertyImmediate(this, x => x.HasDependencies);
 		this.WhenAnyValue(x => x.HasDependencies)
 			.Select(PropertyConverters.BoolToVisibility)
-			.ToUIProperty(this, x => x.DependencyVisibility, Visibility.Collapsed);
+			.ToUIProperty(this, x => x.DependencyVisibility, UIVisibility.Collapsed);
 
 		var conConn = this.Conflicts.Connect().ObserveOn(RxApp.MainThreadScheduler);
 		conConn.SortAndBind(out displayedConflicts, _moduleSort).DisposeMany().Subscribe();
@@ -441,7 +441,7 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 		this.WhenAnyValue(x => x.TotalConflicts, c => c > 0).ToUIPropertyImmediate(this, x => x.HasConflicts);
 		this.WhenAnyValue(x => x.HasConflicts)
 			.Select(PropertyConverters.BoolToVisibility)
-			.ToUIProperty(this, x => x.ConflictsVisibility, Visibility.Collapsed);
+			.ToUIProperty(this, x => x.ConflictsVisibility, UIVisibility.Collapsed);
 
 		var whenInvalidUUID = this.WhenAnyValue(x => x.UUID, x => x.CanAddToLoadOrder).Select(CheckForInvalidUUID);
 		whenInvalidUUID.ToUIPropertyImmediate(this, x => x.HasInvalidUUID);
@@ -449,7 +449,7 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 
 		this.WhenAnyValue(x => x.IsEditorMod, x => x.HasColorblindSupport)
 			.Select(x => PropertyConverters.BoolToVisibility(x.Item1 && x.Item2))
-			.ToUIProperty(this, x => x.ToolkitIconVisibility, Visibility.Collapsed);
+			.ToUIProperty(this, x => x.ToolkitIconVisibility, UIVisibility.Collapsed);
 
 		var missingDepConn = MissingDependencies.Connect().ObserveOn(RxApp.MainThreadScheduler);
 
@@ -457,7 +457,7 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 			.ToUIPropertyImmediate(this, x => x.IsMissingDependency);
 
 		this.WhenAnyValue(x => x.IsMissingDependency).Select(PropertyConverters.BoolToVisibility)
-			.ToUIProperty(this, x => x.MissingDependencyIconVisibility, Visibility.Collapsed);
+			.ToUIProperty(this, x => x.MissingDependencyIconVisibility, UIVisibility.Collapsed);
 
 		missingDepConn.Select(x => BuildMissingDependencyToolTip())
 			.ToUIProperty(this, x => x.MissingDependencyToolTip, string.Empty);
@@ -536,8 +536,8 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 			.ToUIProperty(this, x => x.ScriptExtenderSupportToolTipText);
 
 		this.WhenAnyValue(x => x.ExtenderModStatus)
-			.Select(x => x != DivinityExtenderModStatus.None ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.ExtenderStatusVisibility, Visibility.Collapsed);
+			.Select(x => x != DivinityExtenderModStatus.None ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.ExtenderStatusVisibility, UIVisibility.Collapsed);
 
 		this.WhenAnyValue(x => x.ExtenderModStatus)
 			.Select(ExtenderModStatusToIcon)
@@ -545,8 +545,8 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 
 		var whenOsirisStatusChanges = this.WhenAnyValue(x => x.OsirisModStatus);
 
-		whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.OsirisStatusVisibility, Visibility.Collapsed);
+		whenOsirisStatusChanges.Select(x => x != DivinityOsirisModStatus.NONE ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.OsirisStatusVisibility, UIVisibility.Collapsed);
 
 		whenOsirisStatusChanges.Select(OsirisStatusToTooltipText)
 			.ToUIProperty(this, x => x.OsirisStatusToolTipText);
@@ -559,8 +559,8 @@ public class DivinityModData : DivinityBaseModData, ISelectable
 			.ToUIProperty(this, x => x.LastModifiedDateText, string.Empty);
 
 		this.WhenAnyValue(x => x.FilePath)
-			.Select(x => !String.IsNullOrEmpty(x) ? Visibility.Visible : Visibility.Collapsed)
-			.ToUIProperty(this, x => x.HasFilePathVisibility, Visibility.Collapsed);
+			.Select(x => !String.IsNullOrEmpty(x) ? UIVisibility.Visible : UIVisibility.Collapsed)
+			.ToUIProperty(this, x => x.HasFilePathVisibility, UIVisibility.Collapsed);
 
 		this.WhenAnyValue(x => x.Version.Version)
 			.ToUIProperty(this, x => x.DisplayVersion, "0.0.0.0");

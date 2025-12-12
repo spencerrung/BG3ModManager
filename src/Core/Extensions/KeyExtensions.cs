@@ -1,41 +1,35 @@
-﻿using System.Windows.Input;
+﻿using DivinityModManager.Models.Input;
 
 namespace DivinityModManager;
 
 public static class KeyExtensions
 {
-	private static readonly Dictionary<Key, string> KeyToName = new()
+	private static readonly Dictionary<KeyCode, string> KeyToName = new()
 	{
-		{Key.Add, "+"},
-		{Key.D0, "0"},
-		{Key.D1, "1"},
-		{Key.D2, "2"},
-		{Key.D3, "3"},
-		{Key.D4, "4"},
-		{Key.D5, "5"},
-		{Key.D6, "6"},
-		{Key.D7, "7"},
-		{Key.D8, "8"},
-		{Key.D9, "9"},
-		{Key.Decimal, "."},
-		{Key.Divide, " / "},
-		{Key.Multiply, "*"},
-		{Key.Oem1, ";"},
-		{Key.Oem5, "\\"},
-		{Key.Oem6, "]"},
-		{Key.Oem7, "'"},
-		{Key.OemBackslash, "\\"},
-		{Key.OemComma, ","},
-		{Key.OemMinus, "-"},
-		{Key.OemOpenBrackets, "["},
-		{Key.OemPeriod, "."},
-		{Key.OemPlus, "="},
-		{Key.OemQuestion, "/"},
-		{Key.OemTilde, "`"},
-		{Key.Subtract, "-"}
+		{KeyCode.D0, "0"},
+		{KeyCode.D1, "1"},
+		{KeyCode.D2, "2"},
+		{KeyCode.D3, "3"},
+		{KeyCode.D4, "4"},
+		{KeyCode.D5, "5"},
+		{KeyCode.D6, "6"},
+		{KeyCode.D7, "7"},
+		{KeyCode.D8, "8"},
+		{KeyCode.D9, "9"},
+		{KeyCode.Semicolon, ";"},
+		{KeyCode.Backslash, "\\"},
+		{KeyCode.RightBracket, "]"},
+		{KeyCode.Quote, "'"},
+		{KeyCode.Comma, ","},
+		{KeyCode.Minus, "-"},
+		{KeyCode.LeftBracket, "["},
+		{KeyCode.Period, "."},
+		{KeyCode.Equals, "="},
+		{KeyCode.Slash, "/"},
+		{KeyCode.Grave, "`"}
 	};
 
-	public static string GetKeyName(this Key key)
+	public static string GetKeyName(this KeyCode key)
 	{
 		if (KeyToName.TryGetValue(key, out string name))
 		{

@@ -9,7 +9,7 @@ using DynamicData.Binding;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Windows;
+using DivinityModManager.Enums;
 
 namespace DivinityModManager.Models;
 
@@ -54,7 +54,7 @@ public class DivinityModManagerSettings : ReactiveObject
 	[SettingsEntry("Launch Game - Custom Arguments", "Optional additional arguments to path to the custom launch command")]
 	[DataMember, Reactive] public string CustomLaunchArgs { get; set; }
 
-	[ObservableAsProperty] public Visibility CustomLaunchVisibility { get; }
+	[ObservableAsProperty] public UIVisibility CustomLaunchVisibility { get; }
 
 	[DefaultValue("Orders")]
 	[SettingsEntry("Load Orders Path", "The folder containing mod load order .json files")]
@@ -220,7 +220,7 @@ public class DivinityModManagerSettings : ReactiveObject
 
 		this.WhenAnyValue(x => x.LaunchType, x => x == LaunchGameType.Custom)
 			.Select(PropertyConverters.BoolToVisibility)
-			.ToUIProperty(this, x => x.CustomLaunchVisibility, Visibility.Collapsed);
+			.ToUIProperty(this, x => x.CustomLaunchVisibility, UIVisibility.Collapsed);
 	}
 
 	public DivinityModManagerSettings()

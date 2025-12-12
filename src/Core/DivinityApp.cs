@@ -64,17 +64,31 @@ public static class DivinityApp
 
 	public const int MAX_FILE_OVERRIDE_DISPLAY = 10;
 
+#if !LINUX_BUILD
 	public const LSLib.LS.Enums.Game GAME = LSLib.LS.Enums.Game.BaldursGate3;
 	public const LSLib.LS.Story.Compiler.TargetGame GAME_COMPILER = LSLib.LS.Story.Compiler.TargetGame.BG3;
+#else
+	public const int GAME = 0;
+	public const int GAME_COMPILER = 0;
+#endif
 
 	public static readonly Uri LightTheme = new("pack://application:,,,/BG3ModManager;component/Themes/Light.xaml", UriKind.Absolute);
 	public static readonly Uri DarkTheme = new("pack://application:,,,/BG3ModManager;component/Themes/Dark.xaml", UriKind.Absolute);
 
+#if !LINUX_BUILD
 	public static SourceCache<DivinityModData, string> IgnoredMods { get; } = new(x => x.UUID);
+#else
+	public static object IgnoredMods { get; } = new();
+#endif
 	public static HashSet<string> IgnoredDependencyMods { get; } = [];
 
+#if !LINUX_BUILD
 	public static DivinityGlobalCommands Commands { get; private set; } = new DivinityGlobalCommands();
 	public static DivinityGlobalEvents Events { get; private set; } = new DivinityGlobalEvents();
+#else
+	public static object Commands { get; private set; }
+	public static object Events { get; private set; }
+#endif
 
 	public static event PropertyChangedEventHandler StaticPropertyChanged;
 
@@ -110,7 +124,9 @@ public static class DivinityApp
 	public static bool WorkshopEnabled { get; set; }
 	public static bool NexusModsEnabled { get; set; }
 
+#if !LINUX_BUILD
 	public static IObservable<Func<ModuleShortDesc, bool>> DependencyFilter { get; set; }
+#endif
 
 	public static string DateTimeColumnFormat { get; set; } = "MM/dd/yyyy";
 	public static string DateTimeTooltipFormat { get; set; } = "MMMM dd, yyyy";
@@ -121,10 +137,17 @@ public static class DivinityApp
 		System.Diagnostics.Trace.WriteLine($"[{Path.GetFileName(path)}:{mName}({line})] {msg}");
 	}
 
+#if !LINUX_BUILD
 	public static bool IsScreenReaderActive()
 	{
-		return Services.Get<IScreenReaderService>()?.IsScreenReaderActive() == true;
+		return ServiceLocator.Get<IScreenReaderService>()?.IsScreenReaderActive() == true;
 	}
+#else
+	public static bool IsScreenReaderActive()
+	{
+		return false;
+	}
+#endif
 
 	public static string GetAppDirectory()
 	{

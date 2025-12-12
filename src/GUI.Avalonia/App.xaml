@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DivinityModManager.App"
+             RequestedThemeVariant="Dark">
+    <!-- "Dark" ThemeVariant is applied by default, but you can also explicitly set RequestedThemeVariant to "Light" -->
+
+    <Application.Resources>
+        <!-- Theme resources will be loaded here -->
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>

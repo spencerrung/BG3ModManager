@@ -19,6 +19,17 @@ using System.Xml.Linq;
 
 namespace DivinityModManager.Util;
 
+/// <summary>
+/// Loads and parses mod data from PAK archives and metadata files.
+///
+/// Cross-Platform Note:
+/// This loader uses LSLib on Windows for full PAK and LSX/LSF parsing.
+/// For Linux support, cross-platform parsers are available via ServiceLocator:
+/// - ServiceLocator.LsxParser: ILsxParser for parsing LSX metadata files
+/// - ServiceLocator.PakReader: IPakReader for reading PAK archives
+///
+/// These parsers can be used by alternative mod loading services on non-Windows platforms.
+/// </summary>
 public static partial class DivinityModDataLoader
 {
 	private static readonly StringComparison SCOMP = StringComparison.OrdinalIgnoreCase;

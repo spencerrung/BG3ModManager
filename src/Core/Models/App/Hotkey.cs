@@ -3,12 +3,13 @@
 using System.Runtime.Serialization;
 using System.Text;
 using System.Windows.Input;
+using DivinityModManager.Models.Input;
 
 namespace DivinityModManager.Models.App;
 
 public interface IHotkey
 {
-	Key Key { get; set; }
+	KeyCode Key { get; set; }
 	ModifierKeys Modifiers { get; set; }
 	ICommand Command { get; }
 	bool Enabled { get; set; }
@@ -29,7 +30,7 @@ public class Hotkey : ReactiveObject, IHotkey
 
 	[DataMember]
 	[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
-	[Reactive] public Key Key { get; set; }
+	[Reactive] public KeyCode Key { get; set; }
 
 	[DataMember]
 	[Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))]
@@ -51,10 +52,10 @@ public class Hotkey : ReactiveObject, IHotkey
 	private readonly ObservableAsPropertyHelper<string> _modifiedText;
 	public string ModifiedText => _modifiedText.Value;
 
-	private readonly Key _defaultKey = Key.None;
+	private readonly KeyCode _defaultKey = KeyCode.None;
 	private readonly ModifierKeys _defaultModifiers = ModifierKeys.None;
 
-	public Key DefaultKey => _defaultKey;
+	public KeyCode DefaultKey => _defaultKey;
 	public ModifierKeys DefaultModifiers => _defaultModifiers;
 
 	private readonly ObservableAsPropertyHelper<bool> _canExecuteCommand;
@@ -94,7 +95,7 @@ public class Hotkey : ReactiveObject, IHotkey
 
 	public void Clear()
 	{
-		Key = Key.None;
+		Key = KeyCode.None;
 		Modifiers = ModifierKeys.None;
 		UpdateDisplayBindingText();
 	}
@@ -104,7 +105,7 @@ public class Hotkey : ReactiveObject, IHotkey
 		DisplayBindingText = ToString();
 	}
 
-	public Hotkey(Key key = Key.None, ModifierKeys modifiers = ModifierKeys.None)
+	public Hotkey(KeyCode key = KeyCode.None, ModifierKeys modifiers = ModifierKeys.None)
 	{
 		DisplayName = "";
 		Key = key;
@@ -156,7 +157,7 @@ public class Hotkey : ReactiveObject, IHotkey
 		if (Modifiers.HasFlag(ModifierKeys.Windows))
 			str.Append("Win + ");
 
-		str.Append(Key.GetKeyName());
+		str.Append(Key.ToString());
 
 		return str.ToString();
 	}

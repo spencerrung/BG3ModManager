@@ -1,4 +1,4 @@
-﻿using System.Windows;
+﻿using DivinityModManager.Enums;
 
 namespace DivinityModManager.Models.Updates;
 
@@ -9,7 +9,7 @@ public class DivinityModUpdateData : ReactiveObject, ISelectable
 	[Reactive] public bool IsSelected { get; set; }
 	[Reactive] public bool IsNewMod { get; set; }
 	[Reactive] public bool CanDrag { get; set; }
-	[Reactive] public Visibility Visibility { get; set; }
+	[Reactive] public UIVisibility Visibility { get; set; }
 	[Reactive] public ModSourceType Source { get; set; }
 
 	private readonly ObservableAsPropertyHelper<DivinityModData> _primaryModData;
@@ -60,7 +60,7 @@ public class DivinityModUpdateData : ReactiveObject, ISelectable
 	{
 		Source = ModSourceType.NONE;
 		CanDrag = true;
-		Visibility = Visibility.Visible;
+		Visibility = UIVisibility.Visible;
 
 		//Get whichever mod data isn't null, prioritizing LocalMod
 		_primaryModData = this.WhenAnyValue(x => x.LocalMod, x => x.UpdatedMod).Select(x => x.Item1 ?? x.Item2).ToProperty(this, nameof(PrimaryModData));

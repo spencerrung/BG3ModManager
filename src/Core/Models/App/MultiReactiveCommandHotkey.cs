@@ -4,12 +4,14 @@ using DynamicData.Binding;
 using System.Text;
 using System.Windows.Input;
 
+using DivinityModManager.Models.Input;
+
 namespace DivinityModManager.Models.App;
 
 public class MultiReactiveCommandHotkey : ReactiveObject, IHotkey
 {
 	[Reactive] public string DisplayName { get; set; }
-	[Reactive] public Key Key { get; set; }
+	[Reactive] public KeyCode Key { get; set; }
 
 	[Reactive] public ModifierKeys Modifiers { get; set; }
 
@@ -39,7 +41,7 @@ public class MultiReactiveCommandHotkey : ReactiveObject, IHotkey
 		}
 	}
 
-	private void Init(Key key, ModifierKeys modifiers)
+	private void Init(KeyCode key, ModifierKeys modifiers)
 	{
 		Key = key;
 		Modifiers = modifiers;
@@ -51,12 +53,12 @@ public class MultiReactiveCommandHotkey : ReactiveObject, IHotkey
 	}
 
 
-	public MultiReactiveCommandHotkey(Key key)
+	public MultiReactiveCommandHotkey(KeyCode key)
 	{
 		Init(key, ModifierKeys.None);
 	}
 
-	public MultiReactiveCommandHotkey(Key key, ModifierKeys modifiers)
+	public MultiReactiveCommandHotkey(KeyCode key, ModifierKeys modifiers)
 	{
 		Init(key, modifiers);
 	}
@@ -74,7 +76,7 @@ public class MultiReactiveCommandHotkey : ReactiveObject, IHotkey
 		if (Modifiers.HasFlag(ModifierKeys.Windows))
 			str.Append("Win + ");
 
-		str.Append(Key);
+		str.Append(Key.GetKeyName());
 
 		return str.ToString();
 	}
