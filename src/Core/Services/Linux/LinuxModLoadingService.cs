@@ -21,7 +21,7 @@ public class LinuxModLoadingService : IModLoadingService
 	private const string PartialModPattern = "_[0-9]+\\.pak$";
 
 	public bool IsSupported => true;
-	public string LimitationMessage => "Basic mod loading is supported. Advanced features (save game profiles, builtin mods) are not yet available.";
+	public string LimitationMessage => "Mod and profile loading is supported. Builtin mods (game data) and save game analysis are not yet available.";
 
 	public Task<List<DivinityModData>> LoadBuiltinModsAsync(
 		string gameDataPath,
@@ -89,21 +89,100 @@ public class LinuxModLoadingService : IModLoadingService
 		}
 	}
 
-	public Task<List<DivinityProfileData>> LoadProfilesAsync(
+	public async Task<List<DivinityProfileData>> LoadProfilesAsync(
 		string profilesPath,
 		CancellationToken cancellationToken = default)
 	{
-		DivinityApp.Log($"Profile loading not yet implemented on Linux: {profilesPath}");
-		DivinityApp.Log("This feature requires LSX/LSF parsing of profile files.");
-		return Task.FromResult(new List<DivinityProfileData>());
+		var profiles = new List<DivinityProfileData>();
+
+		if (!Directory.Exists(profilesPath))
+		{
+			DivinityApp.Log($"Profiles directory not found: {profilesPath}");
+			return profiles;
+		}
+
+		try
+		{
+			DivinityApp.Log($"Loading profiles from: {profilesPath}");
+
+			// Enumerate all profile directories
+			var profileDirectories = Directory.EnumerateDirectories(profilesPath);
+
+			foreach (var profileFolder in profileDirectories)
+			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
+
+				try
+				{
+					var profileData = await LoadProfileAsync(profileFolder, cancellationToken);
+					if (profileData != null)
+					{
+						profiles.Add(profileData);
+						DivinityApp.Log($"Loaded profile: {profileData.Name}");
+					}
+				}
+				catch (Exception ex)
+				{
+					DivinityApp.Log($"Error loading profile from '{profileFolder}': {ex.Message}");
+				}
+			}
+
+			DivinityApp.Log($"Successfully loaded {profiles.Count} profiles");
+			return profiles;
+		}
+		catch (Exception ex)
+		{
+			DivinityApp.Log($"Error loading profiles: {ex.Message}");
+			return profiles;
+		}
 	}
 
-	public Task<string> GetSelectedProfileUUIDAsync(
+	public async Task<string> GetSelectedProfileUUIDAsync(
 		string profilesPath,
 		CancellationToken cancellationToken = default)
 	{
-		DivinityApp.Log($"Selected profile detection not yet implemented on Linux: {profilesPath}");
-		return Task.FromResult<string>(null);
+		try
+		{
+			var playerprofilesFile = FindPlayerProfilesFile(profilesPath);
+			if (playerprofilesFile == null)
+			{
+				DivinityApp.Log($"No playerprofiles file found in: {profilesPath}");
+				return null;
+			}
+
+			DivinityApp.Log($"Loading playerprofiles from: {playerprofilesFile}");
+
+			var lsxParser = ServiceLocator.LsxParser;
+			var fileContent = File.ReadAllText(playerprofilesFile);
+			var xDoc = lsxParser.ParseXml(fileContent);
+
+			// Find the ActiveProfile attribute in the UserProfiles region
+			var regionNode = xDoc.Element("region");
+			if (regionNode != null)
+			{
+				var activeProfileAttr = regionNode.Descendants("attribute")
+					.FirstOrDefault(a => a.Attribute("id")?.Value == "ActiveProfile");
+
+				if (activeProfileAttr != null)
+				{
+					var activeProfileUUID = activeProfileAttr.Attribute("value")?.Value;
+					if (!string.IsNullOrEmpty(activeProfileUUID))
+					{
+						DivinityApp.Log($"Found active profile UUID: {activeProfileUUID}");
+						return activeProfileUUID;
+					}
+				}
+			}
+
+			DivinityApp.Log("No active profile UUID found");
+			return null;
+		}
+		catch (Exception ex)
+		{
+			DivinityApp.Log($"Error getting selected profile: {ex.Message}");
+			return null;
+		}
 	}
 
 	public Task ExportModSettingsAsync(
@@ -264,6 +343,160 @@ public class LinuxModLoadingService : IModLoadingService
 			.Replace("&amp;", "&")
 			.Replace("&quot;", "\"")
 			.Replace("&apos;", "'");
+	}
+
+	/// <summary>
+	/// Loads a single profile from its directory.
+	/// </summary>
+	private static async Task<DivinityProfileData> LoadProfileAsync(
+		string profileFolder,
+		CancellationToken cancellationToken)
+	{
+		if (!Directory.Exists(profileFolder))
+		{
+			return null;
+		}
+
+		var folderName = Path.GetFileName(profileFolder);
+		var modSettingsFile = Path.Combine(profileFolder, "modsettings.lsx");
+
+		// Create basic profile data
+		var profileData = new DivinityProfileData(folderName, modSettingsFile)
+		{
+			Name = folderName,
+			ProfileName = folderName
+		};
+
+		// Load active mods from modsettings.lsx
+		var activeMods = await LoadActiveModsFromModSettingsAsync(modSettingsFile, cancellationToken);
+		profileData.ActiveMods = activeMods;
+
+		return profileData;
+	}
+
+	/// <summary>
+	/// Loads the active mods list from a modsettings.lsx file.
+	/// </summary>
+	private static async Task<List<DivinityProfileActiveModData>> LoadActiveModsFromModSettingsAsync(
+		string modSettingsPath,
+		CancellationToken cancellationToken)
+	{
+		var activeMods = new List<DivinityProfileActiveModData>();
+
+		if (!File.Exists(modSettingsPath))
+		{
+			return activeMods;
+		}
+
+		try
+		{
+			var lsxParser = ServiceLocator.LsxParser;
+			var fileContent = File.ReadAllText(modSettingsPath);
+			var xDoc = lsxParser.ParseXml(fileContent);
+
+			// Find the Mods node
+			var modsNode = xDoc.Descendants("node")
+				.FirstOrDefault(n => n.Attribute("id")?.Value == "Mods");
+
+			if (modsNode == null)
+			{
+				return activeMods;
+			}
+
+			// Find all ModuleShortDesc nodes (individual mod entries)
+			var modNodes = modsNode.Descendants("node")
+				.Where(n => n.Attribute("id")?.Value == "ModuleShortDesc");
+
+			foreach (var modNode in modNodes)
+			{
+				if (cancellationToken.IsCancellationRequested)
+					break;
+
+				var activeMod = new DivinityProfileActiveModData();
+
+				// Extract mod attributes
+				activeMod.Folder = lsxParser.GetAttributeValueWithId(modNode, "Folder", "");
+				activeMod.MD5 = lsxParser.GetAttributeValueWithId(modNode, "MD5", "");
+				activeMod.Name = UnescapeXml(lsxParser.GetAttributeValueWithId(modNode, "Name", ""));
+				activeMod.UUID = lsxParser.GetAttributeValueWithId(modNode, "UUID", "");
+
+				// Try to parse version
+				var versionStr = lsxParser.GetAttributeValueWithId(modNode, "Version64", "");
+				if (string.IsNullOrEmpty(versionStr))
+				{
+					versionStr = lsxParser.GetAttributeValueWithId(modNode, "Version", "");
+				}
+
+				if (ulong.TryParse(versionStr, out var version))
+				{
+					activeMod.Version = version;
+				}
+
+				// Only add non-ignored mods
+				if (!string.IsNullOrEmpty(activeMod.UUID))
+				{
+					activeMods.Add(activeMod);
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			DivinityApp.Log($"Error loading mod settings from '{modSettingsPath}': {ex.Message}");
+		}
+
+		return activeMods;
+	}
+
+	/// <summary>
+	/// Finds the playerprofiles file in the profiles directory.
+	/// </summary>
+	private static string FindPlayerProfilesFile(string profilesPath)
+	{
+		if (!Directory.Exists(profilesPath))
+		{
+			return null;
+		}
+
+		// Look for playerprofiles.lsx, playerprofiles.lsb, or playerprofiles.lsf
+		var playerprofilesPatterns = new[] { "playerprofiles.lsx", "playerprofiles.lsb", "playerprofiles.lsf" };
+
+		foreach (var pattern in playerprofilesPatterns)
+		{
+			var filePath = Path.Combine(profilesPath, pattern);
+			if (File.Exists(filePath))
+			{
+				return filePath;
+			}
+		}
+
+		return null;
+	}
+
+	/// <summary>
+	/// Finds a profile file in a profile directory (profile.lsx, profile.lsb, etc.)
+	/// </summary>
+	private static string FindProfileFile(string profileFolder)
+	{
+		if (!Directory.Exists(profileFolder))
+		{
+			return null;
+		}
+
+		// Look for profile*.lsx, profile*.lsb files in order of preference
+		var profilePatterns = new[] { "profile.lsx", "profile.lsb", "profile5.lsb", "profile.lsf" };
+
+		foreach (var pattern in profilePatterns)
+		{
+			var filePath = Path.Combine(profileFolder, pattern);
+			if (File.Exists(filePath))
+			{
+				return filePath;
+			}
+		}
+
+		// If no exact match, try to find any file starting with "profile"
+		var files = Directory.GetFiles(profileFolder, "profile*");
+		return files.FirstOrDefault();
 	}
 }
 
