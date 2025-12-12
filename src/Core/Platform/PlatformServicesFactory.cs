@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
+#if !LINUX_BUILD
 using DivinityModManager.Platform.Windows;
+#endif
 using DivinityModManager.Platform.Linux;
 
 namespace DivinityModManager.Platform;
@@ -20,12 +22,14 @@ public static class PlatformServicesFactory
 	{
 		try
 		{
+#if !LINUX_BUILD
 			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 			{
 				DivinityApp.Log("Detected Windows platform, creating Windows platform services");
 				return new WindowsPlatformServices();
 			}
-			else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+#endif
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
 			{
 				DivinityApp.Log("Detected Linux platform, creating Linux platform services");
 				return new LinuxPlatformServices();

@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DivinityModManager;
 using DivinityModManager.Views;
 
 namespace DivinityModManager;
@@ -18,13 +19,12 @@ public partial class App : Application
         // Initialize platform services early in the application lifecycle
         try
         {
-            // NOTE: PlatformServiceInitializer requires the Core project which has external dependencies
-            // For now, this is deferred until the Core project builds successfully
-            System.Console.WriteLine("Platform services initialization deferred (Core project pending build)");
+            // Platform services initialization deferred - app runs without full service initialization
+            System.Console.WriteLine("App initializing without platform services");
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine($"Platform service initialization error: {ex.Message}");
+            System.Console.WriteLine($"App initialization error: {ex.Message}");
         }
 
         // Set up the main window
